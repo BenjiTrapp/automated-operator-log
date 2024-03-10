@@ -58,7 +58,5 @@ jobs:
 
       - name: Build and convert audit.log to json with auditd_json_converter
         run: |
-          cd $GITHUB_WORKSPACE
-          make build
-          ./$GITHUB_WORKSPACE/dist/auditd_json_converter -o /tmp/auditd.json -ol
+          python3 auditd_json_converter.py -f ./test/audit.log -o /tmp/auditd.json -v     
           echo "$(</tmp/auditd.json)"

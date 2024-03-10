@@ -10,4 +10,4 @@ $(EXECUTABLE): $(PYTHON_FILE)
 
 clean:
     rm -rf build dist __pycache__
-    rm -f *.spec
+    rm -f *.specp

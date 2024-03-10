@@ -1,0 +1,46 @@
+# This file contains the auditctl rules that are loaded whenever the audit daemon is started via the initscripts.
+# The goal of this rules is to only log entries an operator entered in the terminal during a 
+# Red Team engagement as a automated operator log.
+# 
+# █████╗ ██╗   ██╗██████╗ ██╗████████╗██████╗ 
+# ██╔══██╗██║   ██║██╔══██╗██║╚══██╔══╝██╔══██╗
+# ███████║██║   ██║██║  ██║██║   ██║   ██║  ██║
+# ██╔══██║██║   ██║██║  ██║██║   ██║   ██║  ██║
+# ██║  ██║╚██████╔╝██████╔╝██║   ██║   ██████╔╝
+# ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝   ╚═╝   ╚═════╝ 
+#                   OMG - What have I done?                         
+# 
+#
+# Created: 21.10.2023
+#
+# Compiled by Der Benji (nyctophobia@protonmail.com)
+
+# First rule -delete all
+-D
+
+# ignore errors when reading rules from a file
+-i
+
+# Increase buffer size zo survive stress events
+-b 8192
+
+# Ignore current working directory records
+-a always,exclude -F msgtype=CWD
+
+# Log all shell-commands
+-a exit,always -F arch=b32 -S execve -k shell-commands
+-a exit,always -F arch=b64 -S execve -k shell-commands
+
+# command executions from Users only
+-a always,exit -F arch=b64 -S execve,execveat -F uid!=0  -k exec
+-a always,exit -F arch=b32 -S execve,execveat  -F uid!=0 -k exec
+
+# command executions from root only from auid != 0 --> sudo su
+-a always,exit -F arch=b64 -S execve,execveat -F auid!=0 -F auid!=-1 -F uid=0 -k exec
+-a always,exit -F arch=b32 -S execve,execveat  -F auid!=0 -F auid!=-1 -F uid=0 -k exec
+
+# Make the Audit Configuration Immutable
+-e 2
+
+# Set failure mode to syslog
+-f 1

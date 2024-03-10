@@ -1,0 +1,13 @@
+[Unit]
+Description=My Python Script Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=yourusername
+WorkingDirectory=/path/to/your/script
+ExecStart=/usr/bin/python3 /path/to/your/script/auditd_json_converter.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

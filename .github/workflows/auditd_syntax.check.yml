@@ -48,19 +48,18 @@ jobs:
           sudo wc -l /etc/audit/rules.d/audit.rules
           sudo auditctl -l
 
-          - name: Make some test shell comands
-          run: |
-            logger test
-            echo "This is a test" > /tmp/test.txt
-            cat /tmp/test.txt
-            echo "$(</tmp/test.txt)"
-            sudo echo "$(</var/log/audit/audit.log)" 
+      - name: Make some test shell comands
+        run: |
+          logger test
+          echo "This is a test" > /tmp/test.txt
+          cat /tmp/test.txt
+          echo "$(</tmp/test.txt)"
+          sudo echo "$(</var/log/audit/audit.log)" 
   
-            python3 auditd_json_converter.py -o /tmp/auditd2.json -v     
-            echo "$(</tmp/auditd2.json)"
+          python3 auditd_json_converter.py -o /tmp/auditd2.json -v     
+          echo "$(</tmp/auditd2.json)"
 
-    
-      - name: Build and convert audit.log and check if output is as expected
+      - name: Build and convert audit.log and check output 
         run: |
           python3 auditd_json_converter.py -f ./test/audit.log -o /tmp/auditd.json -v     
           echo "$(</tmp/auditd.json)"

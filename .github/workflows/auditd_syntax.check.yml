@@ -60,3 +60,26 @@ jobs:
         run: |
           python3 auditd_json_converter.py -f ./test/audit.log -o /tmp/auditd.json -v     
           echo "$(</tmp/auditd.json)"
+
+      - name: Check if converted auditd.json fits expected output
+        run: |
+          expected='[
+          {
+              "type": "EXECVE",
+              "timestamp": "2018-07-25 03:25:08",
+              "argc": "2",
+              "a0": "cat",
+              "a1": "10-procmon.rules"
+          },
+          {
+              "type": "EXECVE",
+              "timestamp": "2018-07-25 03:25:09",
+              "argc": "4",
+              "a0": "grep",
+              "a2": "procmon",
+              "a3": "/var/log/audit/audit.log"
+          }
+          ]'
+
+          echo "$expected" > /tmp/expected.json
+          diff -q /tmp/expected.json /tmp/audit.json

@@ -47,3 +47,15 @@ jobs:
           sudo augenrules --load 2>&1
           sudo wc -l /etc/audit/rules.d/audit.rules
           sudo auditctl -l
+
+      - name: Make some test shell comands
+        run: |
+          logger test
+          echo "This is a test" > /tmp/test.txt
+          cat /tmp/test.txt
+
+      - name: Build and convert audit.log to json with auditd_json_converter
+        run: |
+          sudo $GITHUB_WORKSPACE/make build
+          ./$GITHUB_WORKSPACE/dist/auditd_json_converter -o /tmp/auditd.json -ol
+          cat /tmp/auditd.json

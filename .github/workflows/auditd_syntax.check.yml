@@ -20,6 +20,32 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Build and convert audit.log and check if output is as expected
+        run: |
+          python3 auditd_json_converter.py -f ./test/audit.log -o /tmp/auditd.json -v     
+          echo "$(</tmp/auditd.json)"
+
+          expected='[
+          {
+              "type": "EXECVE",
+              "timestamp": "2018-07-25 03:25:08",
+              "argc": "2",
+              "a0": "cat",
+              "a1": "10-procmon.rules"
+          },
+          {
+              "type": "EXECVE",
+              "timestamp": "2018-07-25 03:25:09",
+              "argc": "4",
+              "a0": "grep",
+              "a2": "procmon",
+              "a3": "/var/log/audit/audit.log"
+          }
+          ]'
+
+          echo "$expected" > /tmp/expected.json
+          diff -q /tmp/expected.json /tmp/audit.json
+
       - name: Update package information
         run: sudo apt update
 
@@ -56,30 +82,7 @@ jobs:
           echo "$(</tmp/test.txt)"
           sudo echo "$(</var/log/audit/audit.log)" 
 
-      - name: Build and convert audit.log to json with auditd_json_converter
-        run: |
-          python3 auditd_json_converter.py -f ./test/audit.log -o /tmp/auditd.json -v     
-          echo "$(</tmp/auditd.json)"
+          python3 auditd_json_converter.py -o /tmp/auditd2.json -v     
+          echo "$(</tmp/auditd2.json)"
 
-      - name: Check if converted auditd.json fits expected output
-        run: |
-          expected='[
-          {
-              "type": "EXECVE",
-              "timestamp": "2018-07-25 03:25:08",
-              "argc": "2",
-              "a0": "cat",
-              "a1": "10-procmon.rules"
-          },
-          {
-              "type": "EXECVE",
-              "timestamp": "2018-07-25 03:25:09",
-              "argc": "4",
-              "a0": "grep",
-              "a2": "procmon",
-              "a3": "/var/log/audit/audit.log"
-          }
-          ]'
-
-          echo "$expected" > /tmp/expected.json
-          diff -q /tmp/expected.json /tmp/audit.json
+    

@@ -53,9 +53,12 @@ jobs:
           logger test
           echo "This is a test" > /tmp/test.txt
           cat /tmp/test.txt
+          echo "$(</tmp/test.txt)"
+          sudo echo "$(</var/log/audit/audit.log)" 
 
       - name: Build and convert audit.log to json with auditd_json_converter
         run: |
-          sudo $GITHUB_WORKSPACE/make build
+          cd $GITHUB_WORKSPACE
+          make build
           ./$GITHUB_WORKSPACE/dist/auditd_json_converter -o /tmp/auditd.json -ol
-          cat /tmp/auditd.json
+          echo "$(</tmp/auditd.json)"

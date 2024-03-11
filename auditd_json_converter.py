@@ -3,6 +3,7 @@ import time
 import sys
 import json
 import glob
+import binascii
 
 VERBOSE = False
 
@@ -25,6 +26,16 @@ def verbose_print(message):
 def get_time(line):
     timestamp = line.replace('msg=audit(','').replace('):','').split(':')
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(timestamp[0])))
+
+def hex_to_ascii(hex_string):
+    if len(hex_string) % 2 != 0:
+        hex_string =  hex_string + '0'
+    bytes_string = binascii.unhexlify(hex_string)
+    return bytes_string.decode('utf-8', 'ignore')
+
+def is_hex(s):
+    hex_digits = set("0123456789abcdefABCDEF")
+    return all(char in hex_digits for char in s)
 
 def make_readable(key):
     return{
@@ -57,7 +68,9 @@ def process_line(line):
             if len(attribute) == 2:
                 key, value = attribute
                 if 'cmd' in key or 'proctitle' in key:
-                    value = bytearray.fromhex(value).decode()
+                    value = bytearray.fromhex(value).decode()        
+                if is_hex(value) and len(value) > 10:
+                    value = hex_to_ascii(value)
                 entry[make_readable(key)] = value
     return entry
 
@@ -69,7 +82,6 @@ def main():
         if args.file.endswith('.log'):
             process_file(args.file, args.output_file, args.operator_log)
         else:
-            # If a directory is provided, process all .log files in it
             for log_file in glob.glob(args.file + '*.log'):
                 process_file(log_file, args.output_file, args.operator_log)
         verbose_print("[+] Conversion completed!")

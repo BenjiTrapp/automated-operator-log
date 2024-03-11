@@ -61,7 +61,7 @@ jobs:
 
       - name: Build and convert audit.log and check output 
         run: |
-          python3 auditd_json_converter.py -f ./test/audit.log -o /tmp/auditd.json -v     
+          python3 auditd_json_converter.py -f ./test_data/audit.log -o /tmp/auditd.json -v     
           echo "$(</tmp/auditd.json)"
 
           expected='[

@@ -1,19 +1,22 @@
 PYTHON_FILE = auditd_json_converter.py
 EXECUTABLE = dist/auditd_json_converter
 
-.PHONY: build test clean
+.PHONY: test clean
 
 test: 
-    python -m unittest auditd_json_converter_test.py
+		python3 -m unittest auditd_json_converter_test.py
 
 test_convert:
-    python auditd_json_converter.py -f ./test_data/audit.log -o /tmp/bla.json -v &&  cat /tmp/bla.json 
+		python3 auditd_json_converter.py -f ./test_data/audit.log -o /tmp/bla.json -v &&  cat /tmp/bla.json
 
-build: $(EXECUTABLE)
+test_hex_convert:
+		python3 auditd_json_converter.py -f ./test_data/audit_hex.log -o /tmp/bla_hex.json &&  cat /tmp/bla_hex.json
 
-$(EXECUTABLE): $(PYTHON_FILE)
-    pyinstaller --onefile $(PYTHON_FILE)
+#build: $(EXECUTABLE)
+#
+#$(EXECUTABLE): $(PYTHON_FILE)
+#    pyinstaller --onefile $(PYTHON_FILE)
 
 clean:
-    rm -rf build dist __pycache__
-    rm -f *.spec
+		rm -rf build dist __pycache__
+		rm -f *.spec

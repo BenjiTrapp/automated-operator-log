@@ -48,7 +48,7 @@ jobs:
           sudo wc -l /etc/audit/rules.d/audit.rules
           sudo auditctl -l
 
-      - name: Make some test shell comands
+      - name: Make some test shell commands
         run: |
           logger test
           echo "This is a test" > /tmp/test.txt

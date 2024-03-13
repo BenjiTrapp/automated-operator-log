@@ -5,6 +5,7 @@ import tempfile
 import os
 import json
 
+
 class TestHexToAscii(unittest.TestCase):
 
     ############################
@@ -16,11 +17,11 @@ class TestHexToAscii(unittest.TestCase):
         self.assertEqual(ajc.hex_to_ascii(""), "")
 
     def test_process_hex_line(self):
-        input = "32303037343635373337340A747970653D53595343414C4C206D73673D617564697428313731303131313531302E3936333A313134293A20617263683D63303030303033652073797363616C6C3D353920737563636573733D79657320657869743D302061303D3535373262356534396231302061313D353537326234"
+        hex_input = "32303037343635373337340A747970653D53595343414C4C206D73673D617564697428313731303131313531302E3936333A313134293A20617263683D63303030303033652073797363616C6C3D353920737563636573733D79657320657869743D302061303D3535373262356534396231302061313D353537326234"
         expectation = "type=SYSCALL msg=audit(1710111510.963:114): arch=c000003e syscall=59 success=yes exit=0 a0=5572b5e49b10 a1=5572b4"
-        
-        if ajc.is_hex(input):
-            ajc.hex_to_ascii(input) is expectation
+
+        if ajc.is_hex(hex_input):
+            ajc.hex_to_ascii(hex_input) is expectation
         else:
             print("Input is not a HEX String")
 
@@ -42,8 +43,8 @@ class TestHexToAscii(unittest.TestCase):
         self.assertEqual(ajc.make_readable('exe'), 'executable')
 
     def test_unknown_key(self):
-        self.assertEqual(ajc.make_readable('unknown'), 'unknown')   
-    
+        self.assertEqual(ajc.make_readable('unknown'), 'unknown')
+
     ############################
     # Verbose Test Cases
     ############################
@@ -52,7 +53,6 @@ class TestHexToAscii(unittest.TestCase):
         ajc.VERBOSE = True
         ajc.verbose_print('Test message')
         mock_print.assert_called_once_with('Test message')
-
 
     @patch('builtins.print')
     def test_does_not_print_when_not_verbose(self, mock_print):
@@ -77,8 +77,10 @@ class TestHexToAscii(unittest.TestCase):
     ############################
     def test_process_line(self):
         input_line = 'type=EXECVE msg=audit(1532489108.216:3721): argc=2 a0="cat" a1="10-procmon.rules"'
-        expectation = {'type': 'EXECVE', 'timestamp': '2018-07-25 03:25:08', 'argc': '2', 'a0': 'cat', 'a1': '10-procmon.rules'}
+        expectation = {'type': 'EXECVE', 'timestamp': '2018-07-25 03:25:08', 'argc': '2', 'a0': 'cat',
+                       'a1': '10-procmon.rules'}
         self.assertEqual(ajc.process_line(input_line), expectation)
+
 
 class TestProcessFile(unittest.TestCase):
     def setUp(self):
@@ -100,6 +102,7 @@ class TestProcessFile(unittest.TestCase):
             entries = json.load(f)
 
         self.assertEqual(len(entries), 2)
+
 
 if __name__ == '__main__':
     unittest.main()

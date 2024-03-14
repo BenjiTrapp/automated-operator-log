@@ -18,7 +18,7 @@ def parse_args():
                         help='Specify a single line in "" to convert to JSON',
                         required=False)
     parser.add_argument('-o', '--output_file',
-                        help='Specify a destination file for file conversion output',
+                        help='Specify a destination file for file conversion  output',
                         default='/var/log/audit/audit.json')
     parser.add_argument('-ol', '--operator-log',
                         help='Specify the type of log to process',
@@ -68,13 +68,34 @@ def make_readable(key):
 
 def process_file(path, output, operator_logs):
     with open(path, 'r') as f:
-        entries = [process_line(line.replace('\n', '')) for line in f if
-                   any(operator_log.upper() in line for operator_log in operator_logs)]
+        entries = []
+        for line in f:
+            if any(operator_log.upper() in line for operator_log in operator_logs):
+                entry = process_line(line.replace('\n', ''))
+                exclude_noisy_events(entries, entry)
 
     if output:
         with open(output, 'w') as w:
             json.dump(entries, w, indent=4)
 
+
+def exclude_noisy_events(entries, entry):
+    # Exclude specific events from Kali
+    if not ((entry.get('a0') == '/bin/sh' and entry.get('a1') == '/usr/share/kali-themes/xfce4-panel-genmon-vpnip.sh') or
+            (entry.get('a0') == 'ip' and entry.get('a1') == 'tuntap') or
+            (entry.get('a0') == 'cut' and entry.get('a1') == '-d' and entry.get('a2') == ':' and entry.get('a3') == '-f1') or
+            (entry.get('a0') == 'head' and entry.get('a1') == '-n' and entry.get('a2') == '1') or
+            (entry.get('a0') == 'ip' and entry.get('a1') == 'a' and entry.get('a2') == 's' and entry.get('a3') == '') or
+            (entry.get('a0') == 'grep' and entry.get('a1') == '-o' and entry.get('a2') == '-P' and entry.get('a3') ==  ['(?<=inet )[0-9]{1,3}(\\.[0-9]{1,3}){3}'])):
+        entries.append(entry)
+
+# def process_file_and_exclude_noisy_events(file_path):
+#     entries = []
+#     with open(file_path, 'r') as f:
+#         for line in f:
+#             entry = process_line(line.replace('\n', ''))
+#             exclude_noisy_events(entries, entry)
+#     return entries
 
 def process_line(line):
     verbose_print(f"[+] Processing line: {line}")
@@ -104,7 +125,7 @@ def main():
         if args.file.endswith('.log'):
             process_file(args.file, args.output_file, args.operator_log)
         else:
-            for log_file in glob.glob(args.file + '*.log'):
+            for log_file in glob.glob(args.file + '*.log*'):
                 process_file(log_file, args.output_file, args.operator_log)
         verbose_print("[+] Conversion completed!")
     elif args.line:

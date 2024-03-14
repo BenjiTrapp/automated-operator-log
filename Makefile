@@ -12,6 +12,10 @@ test_convert:
 test_hex_convert:
 		python3 auditd_json_converter.py -f ./test_data/audit_hex.log -o /tmp/bla_hex.json &&  cat /tmp/bla_hex.json
 
+test_spam_convert:
+		python3 auditd_json_converter.py -f ./test_data/audit_hex_kali_spam.log -o /tmp/bla_kali_hex.json &&  cat /tmp/bla_kali_hex.json
+
+
 #build: $(EXECUTABLE)
 #
 #$(EXECUTABLE): $(PYTHON_FILE)

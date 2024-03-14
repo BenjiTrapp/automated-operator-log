@@ -81,6 +81,37 @@ class TestHexToAscii(unittest.TestCase):
                        'a1': '10-procmon.rules'}
         self.assertEqual(ajc.process_line(input_line), expectation)
 
+    ############################
+    # Exlusion of noisy Events
+    ############################
+    import unittest
+
+    class TestExcludeNoisyEvents(unittest.TestCase):
+        def test_exclude_noisy_events(self):
+            entries = []
+            # Test case 1: event that should be excluded
+            entry1 = {'a0': '/bin/sh', 'a1': '/usr/share/kali-themes/xfce4-panel-genmon-vpnip.sh'}
+            ajc.exclude_noisy_events(entries, entry1)
+            self.assertEqual(len(entries), 0)  # The entry should be excluded, so entries should still be empty
+
+            # Test case 2: event that should not be excluded
+            entry2 = {'a0': 'other', 'a1': 'other'}
+            ajc.exclude_noisy_events(entries, entry2)
+            self.assertEqual(len(entries), 1)  # The entry should not be excluded, so it should be added to entries
+
+            # Test case 3: another event that should be excluded
+            entry3 = {'a0': 'ip', 'a1': 'tuntap'}
+            ajc.exclude_noisy_events(entries, entry3)
+            self.assertEqual(len(entries),
+                             1)  # The entry should be excluded, so entries should still have only one entry
+
+            # Test case 4: another event that should not be excluded
+            entry4 = {'a0': 'other', 'a1': 'other', 'a2': 'other', 'a3': 'other'}
+            ajc.exclude_noisy_events(entries, entry4)
+            self.assertEqual(len(entries), 2)  # The entry should not be excluded, so it should be added to entries
+
+    if __name__ == '__main__':
+        unittest.main()
 
 class TestProcessFile(unittest.TestCase):
     def setUp(self):
